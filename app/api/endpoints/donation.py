@@ -17,6 +17,7 @@ router = APIRouter()
     '/',
     response_model=list[DonationDB],
     dependencies=[Depends(current_superuser)],
+    response_model_exclude={'close_date', }
 )
 async def get_all_meeting_rooms(
         session: AsyncSession = Depends(get_async_session),
@@ -28,7 +29,8 @@ async def get_all_meeting_rooms(
 @router.post(
     '/',
     response_model=DonationDB,
-    #response_model_exclude_none=True,
+    response_model_exclude_none=True,
+    response_model_exclude={'invested_amount', 'fully_invested'},
     dependencies=[Depends(current_user)],
 )
 async def create_new_donation(
@@ -39,3 +41,20 @@ async def create_new_donation(
     new_donation = await donation_crud.create(donation, session)
     new_donation = await invest(new_donation.id, session)
     return new_donation
+
+
+@router.get(
+    '/my',
+    response_model=list[DonationDB],
+    dependencies=[Depends(current_user)],
+    response_model_exclude={
+        'user_id', 'close_date',
+        'fully_invested', 'invested_amount'
+    },
+)
+async def get_all_meeting_rooms(
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user)
+):
+    donations = await donation_crud.get_by_user(session, user)
+    return donations

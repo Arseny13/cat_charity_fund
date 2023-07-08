@@ -1,7 +1,5 @@
 from typing import Optional, List
-from datetime import datetime
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +19,7 @@ class CRUDCharityProject(CRUDBase[
             self,
             session: AsyncSession
     ) -> List[CharityProject]:
+        """Получение не закрытых проектов."""
         charity_projects = await session.execute(
             select(self.model.id).where(
                 self.model.fully_invested.is_(False)
@@ -33,6 +32,7 @@ class CRUDCharityProject(CRUDBase[
             project_name: str,
             session: AsyncSession,
     ) -> Optional[int]:
+        """Получение id проекта по имени."""
         charity_project_id = await session.execute(
             select(CharityProject.id).where(
                 CharityProject.name == project_name
@@ -40,21 +40,6 @@ class CRUDCharityProject(CRUDBase[
         )
         charity_project_id = charity_project_id.scalars().first()
         return charity_project_id
-
-    async def check_attr_project(
-        self,
-        project: CharityProject,
-        session: AsyncSession
-    ) -> CharityProject:
-        obj_data = jsonable_encoder(project)
-        if obj_data['invested_amount'] == obj_data['full_amount']:
-            setattr(project, 'fully_invested', True)
-        if project.fully_invested:
-            setattr(project, 'close_date', datetime.utcnow())
-        session.add(project)
-        await session.commit()
-        await session.refresh(project)
-        return project
 
 
 charity_project_crud = CRUDCharityProject(CharityProject)

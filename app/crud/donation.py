@@ -20,6 +20,7 @@ class CRUDDonation(CRUDBase[
             session: AsyncSession,
             user: User
     ):
+        """Получение пожертования по пользователю."""
         donations = await session.execute(
             select(Donation).where(
                 Donation.user_id == user.id
@@ -31,6 +32,7 @@ class CRUDDonation(CRUDBase[
             self,
             session: AsyncSession
     ) -> List[Donation]:
+        """Получение не закрытых пожертований."""
         donations = await session.execute(
             select(self.model.id).where(
                 self.model.fully_invested.is_(False)

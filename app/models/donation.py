@@ -6,7 +6,7 @@ from app.core.db import Base
 
 
 class Donation(Base):
-    """Класс прокета."""
+    """Класс пожертования."""
     user_id = Column(Integer, ForeignKey('user.id'))
     comment = Column(Text, nullable=True)
     full_amount = Column(Integer)

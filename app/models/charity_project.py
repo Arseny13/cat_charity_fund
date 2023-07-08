@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, DateTime, Boolean, String, Text
 
-from app.core.db import CommonBase, Base
+from app.core.db import Base
 
 
 class CharityProject(Base):
@@ -17,10 +17,3 @@ class CharityProject(Base):
 
     def __repr__(self):
         return self.name
-
-"""
-class CharityProject(CommonBase):
-    Класс прокета.
-    name = Column(String(100), unique=True, nullable=False)
-    description = Column(Text, nullable=False)
-"""

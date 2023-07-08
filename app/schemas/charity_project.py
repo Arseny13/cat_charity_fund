@@ -6,7 +6,7 @@ from .base import CommonBase
 
 
 class CharityProjectBase(CommonBase):
-    """Базовый класс схемы, от которого наследуем все остальные."""
+    """Базовый класс схемы, от которого наследуем схемы для проекта."""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, min_length=1)
 

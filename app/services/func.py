@@ -24,7 +24,7 @@ async def invest(
     for id in projects:
         project = await charity_project_crud.get(id, session)
         remainder = project.full_amount - project.invested_amount
-        if remainder < sum_donate:
+        if remainder > sum_donate:
             setattr(project, 'invested_amount', project.invested_amount + sum_donate)
             sum_donate -= remainder
             session.add(project)
@@ -33,7 +33,7 @@ async def invest(
             sum_donate -= remainder
             project = close_model(project)
             session.add(project)
-    if sum_donate == 0:
+    if remainder + sum_donate == 0:
         donate = close_model(donate)
     elif sum_donate > 0:
         setattr(donate, 'invested_amount', donate.full_amount - sum_donate)
@@ -58,7 +58,7 @@ async def invest_for_project(
     for id in donations:
         donate = await donation_crud.get(id, session)
         remainder = donate.full_amount - donate.invested_amount
-        if remainder < sum_project:
+        if remainder >= sum_project:
             setattr(donate, 'invested_amount', donate.invested_amount + sum_project)
             sum_project -= remainder
             session.add(donate)
