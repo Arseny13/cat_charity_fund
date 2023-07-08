@@ -2,9 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.base import ModelType
-from app.crud.charity_project import charity_project_crud
-from app.crud.donation import donation_crud
+from app.crud.base import ModelType, CRUD_TYPE
 
 
 def close_model(model: ModelType) -> ModelType:
@@ -16,70 +14,37 @@ def close_model(model: ModelType) -> ModelType:
 
 
 async def invest(
-        donate_id: int,
+        obj_id: int,
+        crud_one: CRUD_TYPE,
+        crud_two: CRUD_TYPE,
         session: AsyncSession,
 ):
-    """Корутина для пожертований."""
-    projects = await charity_project_crud.get_multi_not_closed(session)
-    donate = await donation_crud.get(donate_id, session)
-    sum_donate = donate.full_amount - donate.invested_amount
+    """Корутина инверстирования"""
+    objs_one = await crud_one.get_multi_not_closed(session)
+    obj_two = await crud_two.get(obj_id, session)
+    sum_obj_two = obj_two.full_amount - obj_two.invested_amount
     remainder = 0
-    for id in projects:
-        project = await charity_project_crud.get(id, session)
-        remainder = project.full_amount - project.invested_amount
-        if remainder > sum_donate:
-            setattr(project, 'invested_amount', project.invested_amount + sum_donate)
-            sum_donate -= remainder
-            session.add(project)
+    for id in objs_one:
+        obj_one = await crud_one.get(id, session)
+        remainder = obj_one.full_amount - obj_one.invested_amount
+        if remainder > sum_obj_two:
+            setattr(obj_one, 'invested_amount', obj_one.invested_amount + sum_obj_two)
+            sum_obj_two -= remainder
+            session.add(obj_one)
             break
         else:
-            sum_donate -= remainder
-            project = close_model(project)
-            session.add(project)
-    if remainder + sum_donate == 0:
-        donate = close_model(donate)
-    elif sum_donate > 0:
-        setattr(donate, 'invested_amount', donate.full_amount - sum_donate)
+            sum_obj_two -= remainder
+            obj_one = close_model(obj_one)
+            session.add(obj_one)
+    if sum_obj_two == 0:
+        obj_two = close_model(obj_two)
+    elif sum_obj_two > 0 and objs_one:
+        setattr(obj_two, 'invested_amount', obj_two.invested_amount + sum_obj_two)
     else:
-        setattr(donate, 'invested_amount', remainder + sum_donate)
+        setattr(obj_two, 'invested_amount', 0)
 
-    session.add(donate)
+    session.add(obj_two)
     await session.commit()
-    await session.refresh(donate)
+    await session.refresh(obj_two)
 
-    return donate
-
-
-async def invest_for_project(
-        project_id: int,
-        session: AsyncSession,
-):
-    """Корутина для проекта."""
-    donations = await donation_crud.get_multi_not_closed(session)
-    project = await charity_project_crud.get(project_id, session)
-    sum_project = project.full_amount - project.invested_amount
-    remainder = 0
-    for id in donations:
-        donate = await donation_crud.get(id, session)
-        remainder = donate.full_amount - donate.invested_amount
-        if remainder >= sum_project:
-            setattr(donate, 'invested_amount', donate.invested_amount + sum_project)
-            sum_project -= remainder
-            session.add(donate)
-            break
-        else:
-            sum_project -= remainder
-            donate = close_model(donate)
-            session.add(donate)
-    if sum_project == 0:
-        project = close_model(project)
-    elif sum_project > 0:
-        setattr(project, 'invested_amount', project.full_amount - sum_project)
-    else:
-        setattr(project, 'invested_amount', remainder + sum_project)
-
-    session.add(project)
-    await session.commit()
-    await session.refresh(project)
-
-    return project
+    return obj_two

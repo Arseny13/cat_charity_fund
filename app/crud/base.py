@@ -77,3 +77,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+
+CRUD_TYPE = type(CRUDBase)

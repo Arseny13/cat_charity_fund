@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
 from app.models import User
 from app.core.user import current_superuser, current_user
+from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.schemas.donation import (
     DonationCreate, DonationDB
@@ -41,7 +42,9 @@ async def create_new_donation(
 ):
     """Post запрос на создание пожертования."""
     new_donation = await donation_crud.create(donation, session)
-    new_donation = await invest(new_donation.id, session)
+    new_donation = await invest(
+        new_donation.id, charity_project_crud,
+        donation_crud, session)
     return new_donation
 
 

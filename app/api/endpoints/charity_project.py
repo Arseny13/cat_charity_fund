@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.core.db import get_async_session
 from app.core.user import current_superuser
+from app.crud.donation import donation_crud
 from app.crud.charity_project import charity_project_crud
 from app.schemas.charity_project import (
     CharityProjectCreate, CharityProjectUpdate, CharityProjectDB
@@ -14,7 +15,7 @@ from app.api.validators import (
     update_full_amount_in_charity_project,
     check_charity_project_not_empty
 )
-from app.services.func import invest_for_project
+from app.services.func import invest
 
 router = APIRouter()
 
@@ -32,7 +33,10 @@ async def create_new_charity_project(
     """Только для суперюзеров. Post запрос на создание пожертования."""
     await check_charity_project_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(charity_project, session)
-    new_charity_project = await invest_for_project(new_charity_project.id, session)
+    new_charity_project = await invest(
+        new_charity_project.id, donation_crud,
+        charity_project_crud, session
+    )
     return new_charity_project
 
 
@@ -70,7 +74,10 @@ async def partially_update_charity_project(
     project = await charity_project_crud.update(
         project, obj_in, session
     )
-    project = await invest_for_project(project_id, session)
+    project = await invest(
+        project.id, donation_crud,
+        charity_project_crud, session
+    )
     return project
 
 
