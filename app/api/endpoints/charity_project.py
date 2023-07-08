@@ -29,7 +29,7 @@ async def create_new_charity_project(
         charity_project: CharityProjectCreate,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров."""
+    """Только для суперюзеров. Post запрос на создание пожертования."""
     await check_charity_project_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(charity_project, session)
     new_charity_project = await invest_for_project(new_charity_project.id, session)
@@ -45,7 +45,7 @@ async def create_new_charity_project(
 async def get_all_charity_projects(
         session: AsyncSession = Depends(get_async_session),
 ):
-    # Замените вызов функции на вызов метода.
+    """Get запрос для получения списка проектов."""
     all_projects = await charity_project_crud.get_multi(session)
     return all_projects
 
@@ -60,7 +60,7 @@ async def partially_update_charity_project(
         obj_in: CharityProjectUpdate,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров."""
+    """Только для суперюзеров. Patch запрос на изменения проекта."""
     project = await check_charity_project_exists(
         project_id, session
     )
@@ -83,7 +83,7 @@ async def remove_meeting_room(
         project_id: int,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров."""
+    """Только для суперюзеров. Delete запрос на удаление проекта."""
     project = await check_charity_project_exists(
         project_id, session
     )

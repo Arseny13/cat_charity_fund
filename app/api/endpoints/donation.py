@@ -22,6 +22,7 @@ router = APIRouter()
 async def get_all_meeting_rooms(
         session: AsyncSession = Depends(get_async_session),
 ):
+    """Только для суперюзеров. Get запрос на получение всех пожертований."""
     reservations = await donation_crud.get_multi(session)
     return reservations
 
@@ -38,6 +39,7 @@ async def create_new_donation(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user),
 ):
+    """Post запрос на создание пожертования."""
     new_donation = await donation_crud.create(donation, session)
     new_donation = await invest(new_donation.id, session)
     return new_donation
@@ -56,5 +58,6 @@ async def get_all_meeting_rooms(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
+    """Get запрос на получение пожертований пользователя."""
     donations = await donation_crud.get_by_user(session, user)
     return donations

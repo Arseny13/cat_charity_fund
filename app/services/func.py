@@ -2,11 +2,13 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.crud.base import ModelType
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 
 
-def close_model(model):
+def close_model(model: ModelType) -> ModelType:
+    """Функция закрития метода."""
     setattr(model, 'invested_amount', model.full_amount)
     setattr(model, 'fully_invested', True)
     setattr(model, 'close_date', datetime.utcnow())
@@ -17,6 +19,7 @@ async def invest(
         donate_id: int,
         session: AsyncSession,
 ):
+    """Корутина для пожертований."""
     projects = await charity_project_crud.get_multi_not_closed(session)
     donate = await donation_crud.get(donate_id, session)
     sum_donate = donate.full_amount - donate.invested_amount
@@ -51,6 +54,7 @@ async def invest_for_project(
         project_id: int,
         session: AsyncSession,
 ):
+    """Корутина для проекта."""
     donations = await donation_crud.get_multi_not_closed(session)
     project = await charity_project_crud.get(project_id, session)
     sum_project = project.full_amount - project.invested_amount

@@ -12,6 +12,7 @@ async def check_charity_project_name_duplicate(
         charity_project_name: str,
         session: AsyncSession,
 ) -> None:
+    """Корутина проверяет существует ли проект с таким именем."""
     charity_project_id = await charity_project_crud.get_charity_project_id_by_name(
         charity_project_name, session
     )
@@ -26,6 +27,7 @@ async def check_charity_project_exists(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
+    """Корутина проверяет существует ли проект с таким id."""
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project is None:
         raise HTTPException(
@@ -39,6 +41,7 @@ async def check_charity_project_not_empty(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
+    """Корутина проверяет если у проекта деньги(нужна для удаления)."""
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.invested_amount > 0:
         raise HTTPException(
@@ -53,6 +56,7 @@ async def update_full_amount_in_charity_project(
         project_in: CharityProjectUpdate,
         session: AsyncSession,
 ) -> CharityProject:
+    """Корутина проверяет можно ли изменять проект."""
     charity_project = await charity_project_crud.get(project_id, session)
     project_in = project_in.dict(exclude_unset=True)
     if 'full_amount' not in project_in:
