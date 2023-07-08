@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.base import ModelType, CRUD_TYPE, ModelType
+from app.crud.base import ModelType, CRUD_TYPE
 
 
 def close_model(model: ModelType) -> ModelType:
