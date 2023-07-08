@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.base import ModelType, CRUD_TYPE
+from app.crud.base import ModelType, CRUD_TYPE, ModelType
 
 
 def close_model(model: ModelType) -> ModelType:
@@ -18,7 +18,7 @@ async def invest(
         crud_one: CRUD_TYPE,
         crud_two: CRUD_TYPE,
         session: AsyncSession,
-):
+) -> ModelType:
     """Корутина инверстирования"""
     objs_one = await crud_one.get_multi_not_closed(session)
     obj_two = await crud_two.get(obj_id, session)
@@ -40,8 +40,8 @@ async def invest(
         obj_two = close_model(obj_two)
     elif sum_obj_two > 0 and objs_one:
         setattr(obj_two, 'invested_amount', obj_two.invested_amount + sum_obj_two)
-    else:
-        setattr(obj_two, 'invested_amount', 0)
+    elif sum_obj_two < 0:
+        setattr(obj_two, 'invested_amount', obj_two.invested_amount - sum_obj_two)
 
     session.add(obj_two)
     await session.commit()
