@@ -35,6 +35,19 @@ async def check_charity_project_exists(
     return charity_project
 
 
+async def check_charity_project_not_empty(
+        project_id: int,
+        session: AsyncSession,
+) -> CharityProject:
+    charity_project = await charity_project_crud.get(project_id, session)
+    if charity_project.invested_amount > 0:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='В проект были внесены средства, не подлежит удалению!'
+        )
+    return charity_project
+
+
 async def update_full_amount_in_charity_project(
         project_id: int,
         project_in: CharityProjectUpdate,

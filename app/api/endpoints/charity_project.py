@@ -11,8 +11,10 @@ from app.schemas.charity_project import (
 from app.api.validators import (
     check_charity_project_exists,
     check_charity_project_name_duplicate,
-    update_full_amount_in_charity_project
+    update_full_amount_in_charity_project,
+    check_charity_project_not_empty
 )
+from app.services.func import invest_for_project
 
 router = APIRouter()
 
@@ -30,9 +32,7 @@ async def create_new_charity_project(
     """Только для суперюзеров."""
     await check_charity_project_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(charity_project, session)
-    new_charity_project = await charity_project_crud.check_attr_project(
-        new_charity_project, session
-    )
+    new_charity_project = await invest_for_project(new_charity_project.id, session)
     return new_charity_project
 
 
@@ -70,9 +70,7 @@ async def partially_update_charity_project(
     project = await charity_project_crud.update(
         project, obj_in, session
     )
-    project = await charity_project_crud.check_attr_project(
-        project, session
-    )
+    project = await invest_for_project(project_id, session)
     return project
 
 
@@ -89,5 +87,6 @@ async def remove_meeting_room(
     project = await check_charity_project_exists(
         project_id, session
     )
+    project = await check_charity_project_not_empty(project_id, session)
     project = await charity_project_crud.remove(project, session)
     return project

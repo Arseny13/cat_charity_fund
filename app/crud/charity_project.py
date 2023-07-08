@@ -22,8 +22,8 @@ class CRUDCharityProject(CRUDBase[
             session: AsyncSession
     ) -> List[CharityProject]:
         charity_projects = await session.execute(
-            select(self.model).where(
-                self.model.fully_invested is False
+            select(self.model.id).where(
+                self.model.fully_invested.is_(False)
             )
         )
         return charity_projects.scalars().all()

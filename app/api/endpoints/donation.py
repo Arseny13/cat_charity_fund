@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends
 
@@ -30,13 +29,13 @@ async def get_all_meeting_rooms(
     '/',
     response_model=DonationDB,
     #response_model_exclude_none=True,
-    #dependencies=[Depends(current_user)],
+    dependencies=[Depends(current_user)],
 )
 async def create_new_donation(
         donation: DonationCreate,
         session: AsyncSession = Depends(get_async_session),
-        #user: User = Depends(current_user),
+        user: User = Depends(current_user),
 ):
     new_donation = await donation_crud.create(donation, session)
-    res = await invest(donation, session)
+    new_donation = await invest(new_donation.id, session)
     return new_donation

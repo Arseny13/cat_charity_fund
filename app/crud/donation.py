@@ -27,5 +27,16 @@ class CRUDDonation(CRUDBase[
         )
         return donations.scalars().all()
 
+    async def get_multi_not_closed(
+            self,
+            session: AsyncSession
+    ) -> List[Donation]:
+        donations = await session.execute(
+            select(self.model.id).where(
+                self.model.fully_invested.is_(False)
+            )
+        )
+        return donations.scalars().all()
+
 
 donation_crud = CRUDDonation(Donation)
