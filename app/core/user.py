@@ -10,7 +10,7 @@ from fastapi_users.authentication import (
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
+from app.core.config import settings, logger
 from app.core.db import get_async_session
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -55,8 +55,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             self, user: User, request: Optional[Request] = None
     ):
         """Метод для действий после успешной регистрации пользователя."""
-        # Вместо print здесь можно было бы настроить отправку письма.
-        print(f'Пользователь {user.email} зарегистрирован.')
+        logger.info(f'Пользователь {user.email} зарегистрирован.')
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):
