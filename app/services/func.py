@@ -6,7 +6,7 @@ from app.crud.base import ModelType, CRUD_TYPE
 
 
 def close_model(model: ModelType) -> ModelType:
-    """Функция закрития метода."""
+    """Функция закрытия модели."""
     setattr(model, 'fully_invested', True)
     setattr(model, 'close_date', datetime.utcnow())
     return model
