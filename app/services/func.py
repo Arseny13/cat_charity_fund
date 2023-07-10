@@ -7,8 +7,9 @@ from app.crud.base import ModelType, CRUD_TYPE
 
 def close_model(model: ModelType) -> ModelType:
     """Функция закрытия модели."""
-    setattr(model, 'fully_invested', True)
-    setattr(model, 'close_date', datetime.utcnow())
+    model.invested_amount = model.full_amount
+    model.fully_invested = True
+    model.close_date = datetime.utcnow()
     return model
 
 
@@ -27,7 +28,7 @@ async def invest(
         obj_one = await crud_one.get(id, session)
         remainder = obj_one.full_amount - obj_one.invested_amount
         if remainder > sum_obj_two:
-            setattr(obj_one, 'invested_amount', obj_one.invested_amount + sum_obj_two)
+            obj_one.invested_amount = obj_one.invested_amount + sum_obj_two
             sum_obj_two -= remainder
             session.add(obj_one)
             break
@@ -38,8 +39,9 @@ async def invest(
     if sum_obj_two == 0:
         obj_two = close_model(obj_two)
     elif sum_obj_two > 0 and objs_one:
-        setattr(obj_two, 'invested_amount', obj_two.invested_amount + sum_obj_two)
-
+        obj_two.invested_amount = obj_two.invested_amount + sum_obj_two
+    elif sum_obj_two < 0:
+        obj_two.invested_amount = obj_two.invested_amount - sum_obj_two
     session.add(obj_two)
     await session.commit()
     await session.refresh(obj_two)
