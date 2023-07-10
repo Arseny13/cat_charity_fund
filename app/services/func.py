@@ -29,7 +29,7 @@ async def invest(
         remainder = obj_one.full_amount - obj_one.invested_amount
         if remainder > sum_obj_two:
             obj_one.invested_amount = obj_one.invested_amount + sum_obj_two
-            sum_obj_two -= remainder
+            obj_two = close_model(obj_two)
             session.add(obj_one)
             break
         else:
@@ -40,8 +40,6 @@ async def invest(
         obj_two = close_model(obj_two)
     elif sum_obj_two > 0 and objs_one:
         obj_two.invested_amount = obj_two.invested_amount + sum_obj_two
-    elif sum_obj_two < 0:
-        obj_two.invested_amount = obj_two.invested_amount - sum_obj_two
     session.add(obj_two)
     await session.commit()
     await session.refresh(obj_two)
